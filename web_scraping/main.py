@@ -22,7 +22,7 @@ def num_of_scroll_pages(url):
 
 
 all_products = []
-all_keys = []
+all_keys = ['name']
 
 
 def fetch_category_items(url, products, keys):
@@ -30,6 +30,8 @@ def fetch_category_items(url, products, keys):
         "https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")  # tells us the number of pages this
     # category has, so we can run on all of them
     for page in range(0, num):
+        if page % 10 == 0:
+            print("this is page number " + str(page + 1) + " out of " + str(num) + " pages ")
         soups = get_html_into_soup("https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=" + str(
             page))  # iterate over all pages in this category
         ls1 = soups.find_all(data_food_equals_true)  # find all food items
@@ -91,6 +93,7 @@ for li in ls:
     lt.append(li.findChildren("a", recursive=False)[0]['href'])
 
 for i in range(len(lt)):
+    print("iteration " + str(i + 1) + " out of " + str(len(lt)))
     if len(lt[i]) >= 14:
         if lt[i][11] == '%':  # tells if it's a page which we can immediately do web scraping on
             fetch_category_items(lt[i], all_products, all_keys)
