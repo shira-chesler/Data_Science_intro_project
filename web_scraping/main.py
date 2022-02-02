@@ -55,6 +55,34 @@ def fetch_one_item(code, products, keys):
     products.append(item)
 
 
+def write_to_csv(products, keys, file_name):
+    with open(file_name + '.csv', 'w', encoding='utf-8') as f:
+        for key_index in range(len(keys)):
+            if key_index == len(keys) - 1:
+                f.write("%s" % keys[key_index])
+            else:
+                f.write("%s," % keys[key_index])
+        f.write("\n")
+        for o_item in products:
+            for o_key in keys:
+                if o_key in o_item:
+                    f.write("%s," % (o_item[o_key]))
+                else:
+                    f.write("0,")
+            f.write("\n")
+    f.close()
+
+
+# test function to base functionality
+def test(products, keys):
+    fetch_one_item("P_7296073320531", products, keys)
+    fetch_one_item("P_7296073320517", products, keys)
+    fetch_one_item("P_7296073320555", products, keys)
+
+    write_to_csv(products, keys, 'test')
+    exit()
+
+
 soup = get_html_into_soup("https://www.shufersal.co.il/online/he/A")
 
 ls = soup.find_all(has_data_category)
@@ -73,3 +101,5 @@ for i in range(len(lt)):
                 lst = sec.findChildren("a")[0]['href']
                 for section in lst:
                     fetch_category_items(lt[i], all_products, all_keys)
+
+write_to_csv(all_products, all_keys, 'data')
