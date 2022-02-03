@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request
+from datetime import datetime
 
 
 def has_data_category(tag):
@@ -22,7 +23,7 @@ def num_of_scroll_pages(url):
 
 
 all_products = []
-all_keys = ['name']
+all_keys = ['שם המוצר']
 
 
 def fetch_category_items(url, products, keys):
@@ -31,7 +32,7 @@ def fetch_category_items(url, products, keys):
     # category has, so we can run on all of them
     for page in range(0, num):
         if page % 10 == 0:
-            print("this is page number " + str(page + 1) + " out of " + str(num) + " pages ")
+            print(get_time() + ": this is page number " + str(page + 1) + " out of " + str(num) + " pages ")
         soups = get_html_into_soup("https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=" + str(
             page))  # iterate over all pages in this category
         ls1 = soups.find_all(data_food_equals_true)  # find all food items
@@ -42,10 +43,12 @@ def fetch_category_items(url, products, keys):
 
 def fetch_one_item(code, products, keys):
     soup3 = get_html_into_soup("https://www.shufersal.co.il/online/he/p/" + code + "/json")  # get item page
-    item = {'name': soup3.find("h3", {"id": "modalTitle"}).getText()}
+    item = {'שם המוצר': soup3.find("h3", {"id": "modalTitle"}).getText()}
     price_per_amount = soup3.find("div", {"class": "smallText"}).getText().split('ש"ח ל-')
-    units = price_per_amount[1]
-    item[units] = price_per_amount[0]
+    units = price_per_amount[1].strip()
+    item[units] = price_per_amount[0].strip()
+    if units not in keys:
+        keys.append(units)
     nutrition_list = soup3.find_all("div", {"class": "nutritionItem"})  # get all nutrition data
     if len(nutrition_list) == 0:  # for mis-categorized items (non-food items)
         return
@@ -85,6 +88,15 @@ def test(products, keys):
     exit()
 
 
+# test(all_products, all_keys)
+
+
+def get_time():
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    return current_time
+
+
 soup = get_html_into_soup("https://www.shufersal.co.il/online/he/A")
 
 ls = soup.find_all(has_data_category)
@@ -93,7 +105,7 @@ for li in ls:
     lt.append(li.findChildren("a", recursive=False)[0]['href'])
 
 for i in range(len(lt)):
-    print("iteration " + str(i + 1) + " out of " + str(len(lt)))
+    print(get_time() + ": iteration " + str(i + 1) + " out of " + str(len(lt)))
     if len(lt[i]) >= 14:
         if lt[i][11] == '%':  # tells if it's a page which we can immediately do web scraping on
             fetch_category_items(lt[i], all_products, all_keys)
