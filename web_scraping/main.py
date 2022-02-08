@@ -121,8 +121,8 @@ else:
 
 for i in range(len(lt)):
     print(get_time() + ": iteration " + str(i + 1) + " out of " + str(len(lt)))
-    if all_dump["index"] > i:
-        print("Skipping " + str(i) + " already in dump file")
+    if all_dump["index"]+1 > i:
+        print("Skipping " + str(i+1) + " already in dump file")
         continue
     if len(lt[i]) >= 14:
         if lt[i][11] == '%':  # tells if it's a page which we can immediately do web scraping on
