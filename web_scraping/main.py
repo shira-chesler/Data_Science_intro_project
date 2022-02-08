@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import urllib.request
 from datetime import datetime
+import pickle
+import os.path
 
 
 def has_data_category(tag):
@@ -110,8 +112,18 @@ lt = []
 for li in ls:
     lt.append(li.findChildren("a", recursive=False)[0]['href'])
 
+if os.path.isfile('data.dump'):
+    all_dump = pickle.load(open("data.dump", "rb"))
+    all_products = all_dump["prods"]
+    all_keys = all_dump["keys"]
+else:
+    all_dump = {"index": 0, "prods": all_products, "keys": all_keys}
+
 for i in range(len(lt)):
     print(get_time() + ": iteration " + str(i + 1) + " out of " + str(len(lt)))
+    if all_dump["index"] > i:
+        print("Skipping " + str(i) + " already in dump file")
+        continue
     if len(lt[i]) >= 14:
         if lt[i][11] == '%':  # tells if it's a page which we can immediately do web scraping on
             fetch_category_items(lt[i], all_products, all_keys)
@@ -122,5 +134,7 @@ for i in range(len(lt)):
                 lst = sec.findChildren("a")
                 for section in lst:
                     fetch_category_items(section['href'], all_products, all_keys)
+    all_dump["index"] = i
+    pickle.dump(all_dump, open("data.dump", "wb"))
 
 write_to_csv(all_products, all_keys, 'data')
