@@ -46,8 +46,11 @@ def fetch_one_item(code, products, keys):
     item = {'שם המוצר': soup3.find("h3", {"id": "modalTitle"}).getText()}
     price_per_amount = soup3.find("div", {"class": "smallText"}).getText().split('ש"ח ל-')
     units = price_per_amount[1].strip()
+    if units.find('\n') != -1:
+        units = units[0:units.find('\n')]
     item[units] = price_per_amount[0].strip()
     if units not in keys:
+        print(code, units)
         keys.append(units)
     nutrition_list = soup3.find_all("div", {"class": "nutritionItem"})  # get all nutrition data
     if len(nutrition_list) == 0:  # for mis-categorized items (non-food items)
@@ -80,9 +83,12 @@ def write_to_csv(products, keys, file_name):
 
 # test function to base functionality
 def test(products, keys):
-    fetch_one_item("P_7296073320531", products, keys)
-    fetch_one_item("P_7296073320517", products, keys)
+    fetch_one_item("P_998251", products, keys)
+    fetch_one_item("P_7296073428558", products, keys)
     fetch_one_item("P_7296073320555", products, keys)
+    fetch_one_item("P_7296073224891", products, keys)
+    fetch_one_item("P_7296073098294", products, keys)
+    fetch_one_item("P_7296073173199", products, keys)
 
     write_to_csv(products, keys, 'test')
     exit()
@@ -111,10 +117,10 @@ for i in range(len(lt)):
             fetch_category_items(lt[i], all_products, all_keys)
         elif len(lt[i]) == 14:  # tells that the href is url of page that has sub categories in it
             soup1 = get_html_into_soup("https://www.shufersal.co.il/" + lt[i])
-            sec = soup1.find("section ", {"class": "categoryBannerComponent  categoryLinksSection beStyle"})
+            sec = soup1.find("section", {"class": "categoryBannerComponent"})
             if sec:
-                lst = sec.findChildren("a")[0]['href']
+                lst = sec.findChildren("a")
                 for section in lst:
-                    fetch_category_items(lt[i], all_products, all_keys)
+                    fetch_category_items(section['href'], all_products, all_keys)
 
 write_to_csv(all_products, all_keys, 'data')
