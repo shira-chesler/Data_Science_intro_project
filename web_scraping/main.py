@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request
+import urllib.parse
 from datetime import datetime
 import pickle
 import os.path
@@ -29,6 +30,7 @@ all_keys = ['שם המוצר']
 
 
 def fetch_category_items(url, products, keys):
+    url = urllib.parse.urlparse(url).path
     num = num_of_scroll_pages(
         "https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")  # tells us the number of pages this
     # category has, so we can run on all of them
@@ -97,7 +99,7 @@ def test(products, keys):
 
 
 # test(all_products, all_keys)
-
+# print(urllib.parse.urlparse('/online/he/A31'))
 
 def get_time():
     now = datetime.now()
@@ -117,13 +119,14 @@ if os.path.isfile('data.dump'):
     all_products = all_dump["prods"]
     all_keys = all_dump["keys"]
 else:
-    all_dump = {"index": 0, "prods": all_products, "keys": all_keys}
+    all_dump = {"index": -1, "prods": all_products, "keys": all_keys}
 
 for i in range(len(lt)):
     print(get_time() + ": iteration " + str(i + 1) + " out of " + str(len(lt)))
     if all_dump["index"]+1 > i:
         print("Skipping " + str(i+1) + " already in dump file")
         continue
+    print(lt[i])
     if len(lt[i]) >= 14:
         if lt[i][11] == '%':  # tells if it's a page which we can immediately do web scraping on
             fetch_category_items(lt[i], all_products, all_keys)
