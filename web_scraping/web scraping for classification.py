@@ -26,7 +26,7 @@ def num_of_scroll_pages(url):
 
 
 all_products = []
-all_keys = ['code', 'שם המוצר', 'category_name']
+all_keys = ['product_name', 'code', 'category_name']
 
 
 def fetch_category_items(url, products, keys):
@@ -34,8 +34,8 @@ def fetch_category_items(url, products, keys):
     num = num_of_scroll_pages(
         "https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")  # tells us the number of pages this
     # category has, so we can run on all of them
-    soupcategory = get_html_into_soup("https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")
-    category_name = soupcategory.find("div", {"id": "filterCollapseSubCategories"}) \
+    soup_category = get_html_into_soup("https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")
+    category_name = soup_category.find("div", {"id": "filterCollapseSubCategories"}) \
         .findChild("div", {"class": "title js-facet-name"}, recursive=False).getText().strip()
     if category_name not in keys:
         keys.append(category_name)
@@ -52,7 +52,9 @@ def fetch_category_items(url, products, keys):
 
 def fetch_one_item(code, products, keys, category_name):
     soup3 = get_html_into_soup("https://www.shufersal.co.il/online/he/p/" + code + "/json")  # get item page
-    item = {'שם המוצר': soup3.find("h3", {"id": "modalTitle"}).getText(), 'code': code, 'category_name': category_name}
+    name = soup3.find("h3", {"id": "modalTitle"}).getText()
+    name.replace(name, ",", " ")
+    item = {'product_name': name, 'code': code, 'category_name': category_name}
     nutrition_list = soup3.find_all("div", {"class": "nutritionItem"})  # get all nutrition data
     if len(nutrition_list) == 0:  # for mis-categorized items (non-food items)
         return
@@ -124,4 +126,4 @@ for i in range(len(lt)):
     all_dump["index"] = i
     pickle.dump(all_dump, open("data.dump", "wb"))
 
-write_to_csv(all_products, all_keys, 'data')
+write_to_csv(all_products, all_keys, 'data_for_classification')
