@@ -35,10 +35,11 @@ def fetch_category_items(url, products, keys):
         "https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")  # tells us the number of pages this
     # category has, so we can run on all of them
     soup_category = get_html_into_soup("https://www.shufersal.co.il/" + url + "/fragment?q=:relevance&page=0")
-    category_name = soup_category.find("div", {"id": "filterCollapseSubCategories"}) \
-        .findChild("div", {"class": "title js-facet-name"}, recursive=False).getText().strip()
-    if category_name not in keys:
-        keys.append(category_name)
+    if soup_category.find("div", {"id": "filterCollapseSubCategories"}):
+        category_name = soup_category.find("div", {"id": "filterCollapseSubCategories"}) \
+            .findChild("div", {"class": "title js-facet-name"}, recursive=False).getText().strip()
+        if category_name not in keys:
+            keys.append(category_name)
     for page in range(0, num):
         if page % 10 == 0:
             print(get_time() + ": this is page number " + str(page + 1) + " out of " + str(num) + " pages ")
@@ -53,7 +54,7 @@ def fetch_category_items(url, products, keys):
 def fetch_one_item(code, products, keys, category_name):
     soup3 = get_html_into_soup("https://www.shufersal.co.il/online/he/p/" + code + "/json")  # get item page
     name = soup3.find("h3", {"id": "modalTitle"}).getText()
-    name.replace(name, ",", " ")
+    name = name.replace(",", " ")
     item = {'product_name': name, 'code': code, 'category_name': category_name}
     nutrition_list = soup3.find_all("div", {"class": "nutritionItem"})  # get all nutrition data
     if len(nutrition_list) == 0:  # for mis-categorized items (non-food items)
