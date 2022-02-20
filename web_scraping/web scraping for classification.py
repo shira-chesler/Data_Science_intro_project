@@ -38,8 +38,6 @@ def fetch_category_items(url, products, keys):
     if soup_category.find("div", {"id": "filterCollapseSubCategories"}):
         category_name = soup_category.find("div", {"id": "filterCollapseSubCategories"}) \
             .findChild("div", {"class": "title js-facet-name"}, recursive=False).getText().strip()
-        if category_name not in keys:
-            keys.append(category_name)
     for page in range(0, num):
         if page % 10 == 0:
             print(get_time() + ": this is page number " + str(page + 1) + " out of " + str(num) + " pages ")
