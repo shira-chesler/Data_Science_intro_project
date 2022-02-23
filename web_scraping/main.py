@@ -26,7 +26,7 @@ def num_of_scroll_pages(url):
 
 
 all_products = []
-all_keys = ['שם המוצר']
+all_keys = ['שם המוצר', 'code']
 
 
 def fetch_category_items(url, products, keys):
@@ -47,7 +47,9 @@ def fetch_category_items(url, products, keys):
 
 def fetch_one_item(code, products, keys):
     soup3 = get_html_into_soup("https://www.shufersal.co.il/online/he/p/" + code + "/json")  # get item page
-    item = {'שם המוצר': soup3.find("h3", {"id": "modalTitle"}).getText()}
+    name = soup3.find("h3", {"id": "modalTitle"}).getText()
+    name = name.replace(",", " ")
+    item = {'שם המוצר': name, 'code': code}
     price_per_amount = soup3.find("div", {"class": "smallText"}).getText().split('ש"ח ל-')
     units = price_per_amount[1].strip()
     if units.find('\n') != -1:
